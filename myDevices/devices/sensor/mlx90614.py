@@ -52,9 +52,11 @@ class MLX90614(Temperature):
     comm_sleep_amount = 0.1
     address = 0x5a
 
-    def __init__(self,temperature=True,obj_temperature=True):
-        self.temperature = temperature
-        self.obj_temperature = obj_temperature
+    def __init__(self,obj_temp):
+
+        info("xxxxx MLX90614 obj_temp =  {}".format(obj_temp))
+        self.object_temperature = obj_temp
+
         # I2C.__init__(self, 0x5a, True)
         # Temperature.__init__(self)
 
@@ -65,8 +67,8 @@ class MLX90614(Temperature):
 
     def __family__(self):
         family = []
-        if self.temperature:
-            family.append(Temperature.__family__(self))
+
+        family.append(Temperature.__family__(self))
 
         return family
 
@@ -86,7 +88,10 @@ class MLX90614(Temperature):
                 raise e
 
     def __getCelsius__(self):
-        return self.get_obj_temp()
+        if self.object_temperature:
+            return self.get_obj_temp()
+        else:
+            return self.get_amb_temp()
 
     def data_to_temp(self, data):
         temp = (data*0.02) - 273.15
@@ -94,11 +99,12 @@ class MLX90614(Temperature):
 
     def get_amb_temp(self):
         data = self.read_reg(self.MLX90614_TA)
-        info("data={}".format(data))
+        info("data get_amb_temp ={}".format(data))
         return round(self.data_to_temp(data),2)
 
     def get_obj_temp(self):
         data = self.read_reg(self.MLX90614_TOBJ1)
+        info("data get_obj_temp ={}".format(data))
         return round(self.data_to_temp(data),2)
     def read(self):
         measure_time = datetime.datetime.now().timestamp()

@@ -108,13 +108,14 @@ class SensorsClientTest(unittest.TestCase):
                    # 'actuator' : {'description': 'Digital Output', 'device': 'DigitalActuator', 'args': {'gpio': 'GPIO', 'invert': False, 'channel': actuator_channel}, 'name': 'test_actuator'},
                    # 'light_switch' : {'description': 'Light Switch', 'device': 'LightSwitch', 'args': {'gpio': 'GPIO', 'invert': True, 'channel': light_switch_channel}, 'name': 'test_light_switch'},
                    # 'MCP3004' : {'description': 'MCP3004', 'device': 'MCP3004', 'args': {'chip': '0'}, 'name': 'test_MCP3004'},
-                    'Temperature' : {'description': 'Temperature', 'device': 'MLX90614','args': {},  'name': 'test_MLX90614'},
+                    'Object_Temperature' : {'description': 'Temperature', 'device': 'MLX90614','args': {'obj_temp': True},  'name': 'test_MLX90614_obj'},
+                    'Amb_Temperature' : {'description': 'Temperature', 'device': 'MLX90614','args': {'obj_temp': False},  'name': 'test_MLX90614_amb'},
                     'Luminosity' : {'description': 'Luminosity', 'device': 'GY30','args': {},  'name': 'test_GY30'},
                    'PCF8591' : {'description': 'PCF8591', 'device': 'PCF8591','args': {},  'name': 'test_PCF8591'},
                    'MQ' : {'description': 'Analog Distance Sensor', 'device': 'DistanceSensor', 'args': {'adc': 'test_PCF8591', 'channel': 1}, 'name': 'MQ136'}
                   }
         for sensor in sensors.values():
-            info(sensor)
+            # info("sensors:{}".format(sensor))
             SensorsClientTest.client.RemoveSensor(sensor['name'])
 
         for sensor in sensors.values():
