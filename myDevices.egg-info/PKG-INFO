@@ -1,0 +1,20 @@
+Metadata-Version: 1.1
+Name: myDevices
+Version: 2.0.3
+Summary: myDevices Cayenne agent
+Home-page: https://www.mydevices.com/
+Author: myDevices
+Author-email: N/A
+License: N/A
+Description: N/A
+Keywords: myDevices Cayenne IoT
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Operating System :: POSIX :: Linux
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Software Development
+Classifier: Topic :: Home Automation
+Classifier: Topic :: System :: Hardware
+Classifier: Topic :: System :: Monitoring

@@ -1,0 +1,6 @@
+enum34
+jsonpickle
+netifaces>=0.10.5
+psutil>=0.7.0
+requests
+paho-mqtt
