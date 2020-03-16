@@ -6,9 +6,34 @@ import datetime
 import math
 from myDevices.decorators.rest import request, response
 from traceback import extract_stack
+from myDevices.devices import instance
 from myDevices.utils.logger import debug, info,setInfo,error
 
-class MQSensor(AnalogSensor):
+class MQ136Result:
+    """DHT11 sensor result returned by DHT11.read() method"""
+
+    ERR_NO_ERROR = 0
+    ERR_MISSING_DATA = 1
+    ERR_CRC = 2
+
+    error_code = ERR_NO_ERROR
+    h2s = -1
+    co = -1
+    ch4 = -1
+    uptime = 0
+    unit = "{}ppm {}ppm {}ppm"
+
+    def __init__(self, error_code, h2s, co,ch4,time):
+        self.error_code = error_code
+        self.h2s = h2s
+        self.co = co
+        self.ch4 = ch4
+        self.uptime = time
+
+    def is_valid(self):
+        return self.error_code == MQ136Result.ERR_NO_ERROR
+
+class MQSensor():
 
     ######################### Hardware Related Macros #########################
     MQ_PIN                       = 0        # define which analog input channel you are going to use (MCP3008)
@@ -30,7 +55,9 @@ class MQSensor(AnalogSensor):
     GAS_CH4                      = 2
 
     def __init__(self, adc, channel):
-        AnalogSensor.__init__(self, adc, channel)
+        self.adcname = adc
+        self.adc = None
+        self.setADCInstance()
         self.mq_channel = channel
         # self.LPGCurve = [2.3,0.21,-0.47]    # two points are taken from the curve.
         self.H2SCurve = [0.7, 0.78, -0.72]  # ( Log10(0.5) -  log10(6) ) / ( log10(100) - log10(5) )
@@ -49,11 +76,22 @@ class MQSensor(AnalogSensor):
 
 
 
+
+
+    def setADCInstance(self):
+        if not self.adc:
+            self.adc = instance.deviceInstance(self.adcname)
+
+
+    def __family__(self):
+        return "MQSensor"
+
     def __str__(self):
         return "MQSensor"
 
-    @response("%d")
+    # @response("%d")
     def readMQ(self):
+
         if self.first:
             info("Calibrating...")
             self.Ro = self.MQCalibration(self.mq_channel)
@@ -66,14 +104,15 @@ class MQSensor(AnalogSensor):
             info("read mq_channel:{}".format(read))
             measure_time = datetime.datetime.now().timestamp()
             h2s = self.MQGetGasPercentage(read / self.Ro, self.GAS_H2S)
-            co = self.MQGetGasPercentage(read/self.Ro, self.GAS_CO)
-            ch4 = self.MQGetGasPercentage(read / self.Ro, self.GAS_CH4)
-            return MQ136Result(MQ136Result.ERR_NO_ERROR, h2s, co, ch4, measure_time)
+            # co = self.MQGetGasPercentage(read/self.Ro, self.GAS_CO)
+            # ch4 = self.MQGetGasPercentage(read / self.Ro, self.GAS_CH4)
+            # return MQ136Result(MQ136Result.ERR_NO_ERROR, h2s, co, ch4, measure_time)
+            info(" h2s ={}".format(h2s))
+            return h2s
         except Exception as e:
             error(e)
-            return MQ136Result(MQ136Result.ERR_MISSING_DATA, -1, -1, -1,measure_time)
-
-
+            # return MQ136Result(MQ136Result.ERR_MISSING_DATA, -1, -1, -1,measure_time)
+            return -1
 
     def MQPercentage(self):
         val = {}

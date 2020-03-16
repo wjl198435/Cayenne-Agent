@@ -40,6 +40,7 @@ class AnalogSensor():
 
     @response("%d")
     def read(self):
+        info("********AnalogSensor*********")
         self.setADCInstance()
         try:
             value = self.adc.analogRead(self.channel)
@@ -49,6 +50,7 @@ class AnalogSensor():
     
     @response("%.2f")
     def readFloat(self):
+        info("********readFloat*********")
         self.setADCInstance()
         try:
             value = self.adc.analogReadFloat(self.channel)
@@ -58,12 +60,14 @@ class AnalogSensor():
     
     @response("%.2f")
     def readVolt(self):
+        info("********readVolt*********")
         self.setADCInstance()
         try:
             value = self.adc.analogReadVolt(self.channel)
         except:
             value = getattr(self.adc['instance'], self.adc['read'])(self.channel, 'volt')
         return value
+
 
 
 class Photoresistor(AnalogSensor):

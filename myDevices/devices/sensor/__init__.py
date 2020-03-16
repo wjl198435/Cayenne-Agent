@@ -132,6 +132,19 @@ class Luminosity():
     def getLux(self):
         return self.__getLux__()
 
+class Gas():
+    def __family__(self):
+        return "Gas"
+
+    def __getGas__(self):
+        raise NotImplementedError
+
+    #@request("GET", "sensor/luminosity/lux")
+    @response("%.02f")
+    def getPPM(self):
+        return self.__getGas__()
+
+
 class Distance():
     def __family__(self):
         return "Distance"
@@ -190,9 +203,12 @@ DRIVERS = {}
 DRIVERS["bmp085"] = ["BMP085", "BMP180", "BMP180_TEMPERATURE", "BMP180_PRESSURE"]
 DRIVERS["gy30"] = ["GY30"]
 DRIVERS["mlx90614"] = ["MLX90614"]
+DRIVERS["vl6180x"] = ["VL6180X"]
 DRIVERS["onewiretemp"] = ["DS1822", "DS1825", "DS18B20", "DS18S20", "DS28EA00"]
 DRIVERS["tmpXXX"] = ["TMP36", "TMP75", "TMP102", "TMP275"]
 DRIVERS["tslXXXX"] = ["TSL2561", "TSL2561CS", "TSL2561T", "TSL4531", "TSL45311", "TSL45313", "TSL45315", "TSL45317"]
 DRIVERS["vcnl4000"] = ["VCNL4000", "VCNL4000_LUMINOSITY", "VCNL4000_DISTANCE"]
 DRIVERS["hytXXX"] = ["HYT221"]
+DRIVERS["mqsensor"] = ["MQSensor"]
+DRIVERS["mhz19b"] = ['MHZ19B']
 
