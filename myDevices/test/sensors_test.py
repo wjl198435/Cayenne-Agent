@@ -108,11 +108,15 @@ class SensorsClientTest(unittest.TestCase):
                    # 'actuator' : {'description': 'Digital Output', 'device': 'DigitalActuator', 'args': {'gpio': 'GPIO', 'invert': False, 'channel': actuator_channel}, 'name': 'test_actuator'},
                    # 'light_switch' : {'description': 'Light Switch', 'device': 'LightSwitch', 'args': {'gpio': 'GPIO', 'invert': True, 'channel': light_switch_channel}, 'name': 'test_light_switch'},
                    # 'MCP3004' : {'description': 'MCP3004', 'device': 'MCP3004', 'args': {'chip': '0'}, 'name': 'test_MCP3004'},
+
+                    'Distance' : {'description': 'Distance', 'device': 'VL6180X','args': {},  'name': 'test_vl6180x_distance'},
                     'Object_Temperature' : {'description': 'Temperature', 'device': 'MLX90614','args': {'obj_temp': True},  'name': 'test_MLX90614_obj'},
                     'Amb_Temperature' : {'description': 'Temperature', 'device': 'MLX90614','args': {'obj_temp': False},  'name': 'test_MLX90614_amb'},
                     'Luminosity' : {'description': 'Luminosity', 'device': 'GY30','args': {},  'name': 'test_GY30'},
-                   'PCF8591' : {'description': 'PCF8591', 'device': 'PCF8591','args': {},  'name': 'test_PCF8591'},
-                   'MQ' : {'description': 'Analog Distance Sensor', 'device': 'DistanceSensor', 'args': {'adc': 'test_PCF8591', 'channel': 1}, 'name': 'MQ136'}
+                    'PCF8591' : {'description': 'PCF8591', 'device': 'PCF8591','args': {},  'name': 'test_PCF8591'},
+                   # 'Photoresistor' : {'description': 'Analog Photoresistor Sensor', 'device': 'Photoresistor', 'args': {'adc': 'test_PCF8591', 'channel': 1}, 'name': 'Photoresistor'}
+                    'MHZ19B' : {'description': 'CO2', 'device': 'CO2Sensor','args': {'adc': 'test_PCF8591', 'channel': 2},  'name': 'test_CO2Sensor'},
+                    'MQSensor' : {'description': 'Analog MQ136 Sensor', 'device': 'MQSensor', 'args': {'adc': 'test_PCF8591', 'channel': 1}, 'name': 'MQ136'}
                   }
         for sensor in sensors.values():
             # info("sensors:{}".format(sensor))
@@ -128,21 +132,31 @@ class SensorsClientTest(unittest.TestCase):
         # self.setSensorValue(sensors['light_switch'], 1)
         # self.setSensorValue(sensors['light_switch'], 0)
         #Test getting analog value
-        channel = 'dev:{}'.format(sensors['MQ']['name'])
-        info(" channel -----> {} ".format(channel))
+        # channel = 'dev:{}'.format(sensors['MQ']['name'])
+        # info(" channel -----> {} ".format(channel))
+        # count = 0
+        # while count < 1:
+        #     for obj in SensorsClientTest.client.SensorsInfo():
+        #         info(obj)
+        #     count = count + 1
+        #     sleep(5)
+
+        for obj in SensorsClientTest.client.SensorsInfo():
+            info(obj)
 
         # for obj in SensorsClientTest.client.SensorsInfo():
         #     info(obj)
 
-        retrievedSensorInfo = next(obj for obj in SensorsClientTest.client.SensorsInfo() if obj['channel'] == channel)
-
-        info(" retrievedSensorInfo -----> {} value={}".format(retrievedSensorInfo,retrievedSensorInfo['value']))
-
-        self.assertGreaterEqual(retrievedSensorInfo['value'], 0.0)
-
-        self.assertLessEqual(retrievedSensorInfo['value'], 1.0)
-        for sensor in sensors.values():
-            self.assertTrue(SensorsClientTest.client.RemoveSensor(sensor['name']))
+        # retrievedSensorInfo = next(obj for obj in SensorsClientTest.client.SensorsInfo() if obj['channel'] == channel)
+        #
+        # info(" retrievedSensorInfo -----> {} value={}".format(retrievedSensorInfo,retrievedSensorInfo['value']))
+        #
+        # self.assertGreaterEqual(retrievedSensorInfo['value'], 0.0)
+        #
+        # self.assertLessEqual(retrievedSensorInfo['value'], 1.0)
+        # for sensor in sensors.values():
+        #     info(sensor['name'])
+        #     self.assertTrue(SensorsClientTest.client.RemoveSensor(sensor['name']))
 
     def testSensorCallback(self):
         debug('testSensorCallback')

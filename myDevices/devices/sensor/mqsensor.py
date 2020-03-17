@@ -75,9 +75,6 @@ class MQSensor():
         self.first = True
 
 
-
-
-
     def setADCInstance(self):
         if not self.adc:
             self.adc = instance.deviceInstance(self.adcname)

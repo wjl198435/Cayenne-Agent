@@ -51,6 +51,10 @@ class PCF8591(DAC, I2C):
             self.daValue = value
             self.writeBytes(self.__command__())
 if __name__ == '__main__':
+    import time
     adc = PCF8591()
-    print(adc.analogReadAllVolt())
-    print(adc.readVolt(1))
+
+    while True:
+        print(adc.analogReadAllVolt())
+        time.sleep(2)
+    # print(adc.readVolt(1))

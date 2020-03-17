@@ -1,0 +1,5 @@
+cryptography==2.8
+pandas==0.25.3
+# sudo apt-get update
+# sudo apt-get install pigpio
+# sudo pigpiod

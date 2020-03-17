@@ -262,6 +262,9 @@ class SensorsClient():
             True for success, False otherwise.
         """
         result = func(*args)
+
+        debug("result={}".format(result))
+
         if result != None:
             if hasattr(func, "contentType"):
                 if func.contentType != M_JSON:
@@ -271,6 +274,7 @@ class SensorsClient():
                     response = result
             else:
                 response = result
+        debug("response={}".format(response))
         return response
 
     def BusInfo(self):
@@ -297,6 +301,8 @@ class SensorsClient():
                                 'Pressure': {'function': 'getPascal', 'data_args': {'type': 'bp', 'unit': 'pa'}},
                                 'Luminosity': {'function': 'getLux', 'data_args': {'type': 'lum', 'unit': 'lux'}},
                                 'Distance': {'function': 'getCentimeter', 'data_args': {'type': 'prox', 'unit': 'cm'}},
+                                'MQSensor': {'function': 'readMQ', 'data_args': {'type': 'mq136','unit': 'ppm'}},
+                                'CO2Sensor': {'function': 'readCO2', 'data_args': {'type': 'co2','unit': 'ppm'}},
                                 'ServoMotor': {'function': 'readAngle', 'data_args': {'type': 'analog_actuator'}},
                                 'DigitalSensor': {'function': 'read', 'data_args': {'type': 'digital_sensor', 'unit': 'd'}},
                                 'DigitalActuator': {'function': 'read', 'data_args': {'type': 'digital_actuator', 'unit': 'd'}},
@@ -310,17 +316,23 @@ class SensorsClient():
                 for device_type in device['type']:
                     try:
                         display_name = device['description']
+
                     except:
                         display_name = None
+                    info("display_name:{}".format(display_name))
                     if device_type in sensor_types:
                         try:
                             sensor_type = sensor_types[device_type]
+                            info("sensor_type:{}".format(sensor_type))
                             func = getattr(sensor, sensor_type['function'])
+                            info("func:{}".format(func))
+
                             if len(device['type']) > 1:
                                 channel = '{}:{}'.format(device['name'], device_type.lower())
                             else:
                                 channel = device['name']
                             value = self.CallDeviceFunction(func)
+                            info("value={}".format(value))
                             cayennemqtt.DataChannel.add(sensors_info, cayennemqtt.DEV_SENSOR, channel, value=value, name=display_name, **sensor_type['data_args'])
                             if 'DigitalActuator' == device_type and value in (0, 1):
                                 manager.updateDeviceState(device['name'], value)
