@@ -17,7 +17,7 @@ Press Ctrl+C to exit!
 # Initialise the BME280
 bus = SMBus(1)
 bme280A = BME280(i2c_dev=bus)
-bme280B = BME280(i2c_dev=bus, i2c_addr=0x77)
+bme280B = BME280(i2c_dev=bus, i2c_addr=0x76)
 
 # Set up in "forced" mode
 # In this mode `get_temperature` and `get_pressure` will trigger

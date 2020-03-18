@@ -116,7 +116,11 @@ class SensorsClientTest(unittest.TestCase):
                     'PCF8591' : {'description': 'PCF8591', 'device': 'PCF8591','args': {},  'name': 'test_PCF8591'},
                    # 'Photoresistor' : {'description': 'Analog Photoresistor Sensor', 'device': 'Photoresistor', 'args': {'adc': 'test_PCF8591', 'channel': 1}, 'name': 'Photoresistor'}
                     'MHZ19B' : {'description': 'CO2', 'device': 'CO2Sensor','args': {'adc': 'test_PCF8591', 'channel': 2},  'name': 'test_CO2Sensor'},
-                    'MQSensor' : {'description': 'Analog MQ136 Sensor', 'device': 'MQSensor', 'args': {'adc': 'test_PCF8591', 'channel': 1}, 'name': 'MQ136'}
+                    'MQSensor' : {'description': 'Analog MQ136 Sensor', 'device': 'MQSensor', 'args': {'adc': 'test_PCF8591', 'channel': 1}, 'name': 'MQ136'},
+                    # 'Pressure' : {'description': 'Pressure', 'device': 'BME280','args': {'pressure': True},  'name': 'BME280_Pressure'},
+                    # 'Humidity' : {'description': 'Humidity', 'device': 'BME280','args': {'pressure': True},  'name': 'BME280_Humidity'},
+                    'BME280' : {'description': 'Temperature', 'device': 'BME280','args': {'pressure': True,'humidity': True},  'name': 'test_BME280'}
+
                   }
         for sensor in sensors.values():
             # info("sensors:{}".format(sensor))

@@ -211,4 +211,5 @@ DRIVERS["vcnl4000"] = ["VCNL4000", "VCNL4000_LUMINOSITY", "VCNL4000_DISTANCE"]
 DRIVERS["hytXXX"] = ["HYT221"]
 DRIVERS["mqsensor"] = ["MQSensor"]
 DRIVERS["co2sensor"] = ['CO2Sensor']
+DRIVERS["BME280"] = ["BME280"]
 
