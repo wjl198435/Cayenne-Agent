@@ -8,6 +8,7 @@ from myDevices.decorators.rest import request, response
 from traceback import extract_stack
 from myDevices.devices import instance
 from myDevices.utils.logger import debug, info,setInfo,error
+from myDevices.utils.threadpool import ThreadPool
 
 class MQ136Result:
     """DHT11 sensor result returned by DHT11.read() method"""
@@ -72,12 +73,13 @@ class MQSensor():
         # with these two points, a line is formed which is "approximately equivalent"
         # to the original curve.
         # data format:[ x, y, slope]; point1: (lg200, 0.53), point2: (lg10000,  -0.22)
-        self.first = True
+        self.isCalibrated = False
 
 
     def setADCInstance(self):
         if not self.adc:
             self.adc = instance.deviceInstance(self.adcname)
+            info(" setADCInstance  self.adcname={} self.adc={}".format(self.adcname,self.adc))
 
 
     def __family__(self):
@@ -86,15 +88,34 @@ class MQSensor():
     def __str__(self):
         return "MQSensor"
 
-    # @response("%d")
-    def readMQ(self):
+    # def calibrating(self):
+    #         """Start download speed thread"""
+        # ThreadPool.Submit(self.doCalibrating)
 
-        if self.first:
-            info("Calibrating...")
-            self.Ro = self.MQCalibration(self.mq_channel)
-            info("Calibration is done...\n")
-            info("Ro=%f kohm" % self.Ro)
-            self.first = False
+
+        # ThreadPool.Submit(self.Calibrating)
+
+    def doCalibrating(self):
+        """Run speed test"""
+
+        info("Calibrating...")
+        self.Ro = self.MQCalibration(self.mq_channel)
+        info("Calibration is done...\n")
+        info("Ro=%f kohm" % self.Ro)
+        self.isCalibrated = True
+
+
+    def calibrating(self):
+        if not self.isCalibrated:
+            ThreadPool.Submit(self.doCalibrating())
+
+    def getMQ(self):
+        if not self.isCalibrated:
+            self.calibrating()
+        return  self.doReadMQ()
+
+    # @response("%d")
+    def doReadMQ(self):
 
         try:
             read = self.MQRead(self.mq_channel)
@@ -110,6 +131,7 @@ class MQSensor():
             error(e)
             # return MQ136Result(MQ136Result.ERR_MISSING_DATA, -1, -1, -1,measure_time)
             return -1
+
 
     def MQPercentage(self):
         val = {}
@@ -162,13 +184,14 @@ class MQSensor():
     ############################################################################
     def MQRead(self, mq_pin):
         rs = 0.0
+        if self.adc:
+            for i in range(self.READ_SAMPLE_TIMES):
+                rs += self.MQResistanceCalculation(self.adc.read(mq_pin))
+                time.sleep(self.READ_SAMPLE_INTERVAL/1000.0)
 
-        for i in range(self.READ_SAMPLE_TIMES):
-            rs += self.MQResistanceCalculation(self.adc.read(mq_pin))
-            time.sleep(self.READ_SAMPLE_INTERVAL/1000.0)
-
-        rs = rs/self.READ_SAMPLE_TIMES
-
+            rs = rs/self.READ_SAMPLE_TIMES
+        else:
+            error("MQRead adc is none")
         return rs
 
     #########################  MQGetGasPercentage ##############################
@@ -198,3 +221,12 @@ class MQSensor():
     ############################################################################
     def MQGetPercentage(self, rs_ro_ratio, pcurve):
         return round((math.pow(10,( ((math.log(rs_ro_ratio)-pcurve[1])/ pcurve[2]) + pcurve[0]))),3)
+
+# if __name__ == "__main__":
+#     from myDevices.devices.analog.pcf8591 import PCF8591
+#     adc = PCF8591()
+#     mq136 = MQSensor(adc,2)
+#     while True:
+#         # print(mq136.getMQ())
+#         # print(adc.readVolt(2))
+#         time.sleep(3)

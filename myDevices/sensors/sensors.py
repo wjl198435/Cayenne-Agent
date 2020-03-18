@@ -301,7 +301,7 @@ class SensorsClient():
                                 'Pressure': {'function': 'getPascal', 'data_args': {'type': 'bp', 'unit': 'pa'}},
                                 'Luminosity': {'function': 'getLux', 'data_args': {'type': 'lum', 'unit': 'lux'}},
                                 'Distance': {'function': 'getCentimeter', 'data_args': {'type': 'prox', 'unit': 'cm'}},
-                                'MQSensor': {'function': 'readMQ', 'data_args': {'type': 'mq136','unit': 'ppm'}},
+                                'MQSensor': {'function': 'getMQ', 'data_args': {'type': 'mq136','unit': 'ppm'}},
                                 'CO2Sensor': {'function': 'readCO2', 'data_args': {'type': 'co2','unit': 'ppm'}},
                                 'ServoMotor': {'function': 'readAngle', 'data_args': {'type': 'analog_actuator'}},
                                 'DigitalSensor': {'function': 'read', 'data_args': {'type': 'digital_sensor', 'unit': 'd'}},
@@ -361,11 +361,13 @@ class SensorsClient():
 
         Returns:
             True for success, False otherwise.
+            :param index:
         """
         info('AddSensor: {}, {}, {}, {}'.format(name, description, device, args))
         bVal = False
         try:
             sensorAdd = {}
+
             if name:
                 sensorAdd['name'] = name
             if device:

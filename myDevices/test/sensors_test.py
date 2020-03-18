@@ -104,22 +104,30 @@ class SensorsClientTest(unittest.TestCase):
         debug('testSensorInfo')
         actuator_channel = GPIO().pins[10]
         light_switch_channel = GPIO().pins[11]
+
+        adcSensors = {
+
+        }
+
+        for sensor in adcSensors.values():
+            info('--------{} {} {}'.format(sensor['name'], sensor['description'], sensor['device']))
+            SensorsClientTest.client.AddSensor(sensor['name'],sensor['description'], sensor['device'], sensor['args'])
+
         sensors = {
                    # 'actuator' : {'description': 'Digital Output', 'device': 'DigitalActuator', 'args': {'gpio': 'GPIO', 'invert': False, 'channel': actuator_channel}, 'name': 'test_actuator'},
                    # 'light_switch' : {'description': 'Light Switch', 'device': 'LightSwitch', 'args': {'gpio': 'GPIO', 'invert': True, 'channel': light_switch_channel}, 'name': 'test_light_switch'},
                    # 'MCP3004' : {'description': 'MCP3004', 'device': 'MCP3004', 'args': {'chip': '0'}, 'name': 'test_MCP3004'},
 
-                    'Distance' : {'description': 'Distance', 'device': 'VL6180X','args': {},  'name': 'test_vl6180x_distance'},
-                    'Object_Temperature' : {'description': 'Temperature', 'device': 'MLX90614','args': {'obj_temp': True},  'name': 'test_MLX90614_obj'},
-                    'Amb_Temperature' : {'description': 'Temperature', 'device': 'MLX90614','args': {'obj_temp': False},  'name': 'test_MLX90614_amb'},
-                    'Luminosity' : {'description': 'Luminosity', 'device': 'GY30','args': {},  'name': 'test_GY30'},
-                    'PCF8591' : {'description': 'PCF8591', 'device': 'PCF8591','args': {},  'name': 'test_PCF8591'},
-                   # 'Photoresistor' : {'description': 'Analog Photoresistor Sensor', 'device': 'Photoresistor', 'args': {'adc': 'test_PCF8591', 'channel': 1}, 'name': 'Photoresistor'}
-                    'MHZ19B' : {'description': 'CO2', 'device': 'CO2Sensor','args': {'adc': 'test_PCF8591', 'channel': 2},  'name': 'test_CO2Sensor'},
-                    'MQSensor' : {'description': 'Analog MQ136 Sensor', 'device': 'MQSensor', 'args': {'adc': 'test_PCF8591', 'channel': 1}, 'name': 'MQ136'},
-                    # 'Pressure' : {'description': 'Pressure', 'device': 'BME280','args': {'pressure': True},  'name': 'BME280_Pressure'},
-                    # 'Humidity' : {'description': 'Humidity', 'device': 'BME280','args': {'pressure': True},  'name': 'BME280_Humidity'},
-                    'BME280' : {'description': 'Temperature', 'device': 'BME280','args': {'pressure': True,'humidity': True},  'name': 'test_BME280'}
+
+                    'PCF8591' : {'description': 'PCF8591','index':7, 'device': 'PCF8591','args': {},  'name': 'adc'},
+                    'Distance' : {'description': 'Distance', 'index':0 ,'device': 'VL6180X','args': {},  'name': 'test_vl6180x_distance'},
+                    'Object_Temperature' : {'description': 'Temperature', 'index':1, 'device': 'MLX90614','args': {'obj_temp': True},  'name': 'test_MLX90614_obj'},
+                    'Amb_Temperature' : {'description': 'Temperature', 'index':2,'device': 'MLX90614','args': {'obj_temp': False},  'name': 'test_MLX90614_amb'},
+                    'Luminosity' : {'description': 'Luminosity','index':3, 'device': 'GY30','args': {},  'name': 'test_GY30'},
+
+                    'MHZ19B' : {'description': 'CO2', 'index':4,'device': 'CO2Sensor','args': {'adc': 'adc', 'channel': 2},  'name': 'test_CO2Sensor'},
+                    'MQSensor' : {'description': 'Analog MQ136 Sensor',  'index':5,'device': 'MQSensor', 'args': {'adc': 'adc', 'channel': 1}, 'name': 'test_MQ136'},
+                    'BME280' : {'description': 'bme','index':6, 'device': 'BME280','args': {'pressure': True,'humidity': True},  'name': 'test_BME280'},
 
                   }
         for sensor in sensors.values():
@@ -128,7 +136,7 @@ class SensorsClientTest(unittest.TestCase):
 
         for sensor in sensors.values():
             info('--------{} {} {}'.format(sensor['name'], sensor['description'], sensor['device']))
-            SensorsClientTest.client.AddSensor(sensor['name'], sensor['description'], sensor['device'], sensor['args'])
+            SensorsClientTest.client.AddSensor(sensor['name'],sensor['description'], sensor['device'], sensor['args'])
         # SensorsClientTest.client.SensorsInfo()
         #Test setting sensor values
         # self.setSensorValue(sensors['actuator'], 1)
@@ -138,15 +146,17 @@ class SensorsClientTest(unittest.TestCase):
         #Test getting analog value
         # channel = 'dev:{}'.format(sensors['MQ']['name'])
         # info(" channel -----> {} ".format(channel))
-        # count = 0
-        # while count < 1:
-        #     for obj in SensorsClientTest.client.SensorsInfo():
-        #         info(obj)
-        #     count = count + 1
-        #     sleep(5)
+        count = 0
+        while count < 1:
+            info("new loop for SensorsInfo")
+            sleep(5)
+            for obj in SensorsClientTest.client.SensorsInfo():
+                info(obj)
+            count = count + 1
 
-        for obj in SensorsClientTest.client.SensorsInfo():
-            info(obj)
+
+        # for obj in SensorsClientTest.client.SensorsInfo():
+        #     info(obj)
 
         # for obj in SensorsClientTest.client.SensorsInfo():
         #     info(obj)

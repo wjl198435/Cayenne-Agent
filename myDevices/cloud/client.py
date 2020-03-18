@@ -195,6 +195,9 @@ class CloudServerClient:
                 return
             self.schedulerEngine = SchedulerEngine(self, 'client_scheduler')
             self.sensorsClient = sensors.SensorsClient()
+
+
+
             self.readQueue = Queue()
             self.writeQueue = Queue()
             self.hardware = Hardware()

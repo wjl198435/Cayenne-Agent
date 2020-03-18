@@ -9,6 +9,8 @@ from myDevices.utils.config import Config
 from myDevices.devices import serial, digital, analog, sensor
 from myDevices.devices.instance import DEVICES
 from myDevices.devices.onewire import detectOneWireDevices, deviceExists, FAMILIES
+from myDevices.utils.logger import exception, info, warn, error, debug, setDebug
+import sys
 
 PACKAGES = [serial, digital, analog, sensor]
 DYNAMIC_DEVICES  = {}
@@ -67,10 +69,12 @@ def saveDevice(name, install_date=None):
         if DEVICES[name]['origin'] == 'manual':
             return
         DYNAMIC_DEVICES[name] = DEVICES[name]
+
         if install_date:
             DEVICES[name]['install_date'] = install_date
         json_devices = getJSON(DYNAMIC_DEVICES)
         with open(DEVICES_JSON_FILE, 'w') as outfile:
+
             outfile.write(json_devices)
 
 def removeDevice(name):
@@ -104,12 +108,18 @@ def addDeviceJSON(json):
     else:
         args = {}
 
+    if 'index' in json:
+        index = json["index"]
+    else:
+        index = 99
+
     if 'description' in json:
         description = json["description"]
     else:
         description = name
-
+    info("{} {} {} {} {} {}".format(name,index, device, description, args, "rest"))
     res = addDevice(name, device, description, args, "rest")
+    sleep(0.1)
     logger.debug('Now saving device')
     if res == 1:
         saveDevice(name,  int(time()))
@@ -207,10 +217,13 @@ def loadJsonDevices(origin):
     if os.path.isfile(DEVICES_JSON_FILE):
         with open(DEVICES_JSON_FILE, encoding='utf-8') as data_file:
             json_devices = JSON.loads(data_file.read())
+
             for device in json_devices:
+                info(device)
                 addDevice(device['name'], device['device'], device['description'], device['args'], origin)
                 if device['name'] in DEVICES:
                     DYNAMIC_DEVICES[device['name']] = DEVICES[device['name']]
+
 
 def addDeviceInstance(name, device, description, instance, args, origin):
     funcs = {"GET": {}, "POST": {}}

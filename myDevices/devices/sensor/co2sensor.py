@@ -11,6 +11,9 @@ from myDevices.devices.analog import DAC
 
 
 class CO2Sensor():
+    RANGE = 2000
+    VH = 2.0
+    VL = 0.4
 
     def __init__(self, adc, channel):
         self.adcname = adc
@@ -22,6 +25,8 @@ class CO2Sensor():
         if not self.adc:
             self.adc = instance.deviceInstance(self.adcname)
 
+            info(" setADCInstance  self.adcname={} self.adc={}".format(self.adcname,self.adc))
+
     def __family__(self):
         return "CO2Sensor"
 
@@ -31,4 +36,12 @@ class CO2Sensor():
     # @response("%d")
     def readCO2(self):
 
-        return self.adc.analogReadVolt(self.co2_channel)
+        # 模拟电压输出与浓度之间的换算关系，以 0.4V~2.0V 输出范围为例:
+        # Vo(V)=0.4V+(2.0V-0.4V)*C(浓度 ppm) /量程(ppm)
+        vo = 0.0
+        if self.adc:
+            vo = self.adc.analogReadVolt(self.co2_channel)
+        else:
+            error("adc is None")
+
+        return int((vo-0.4)*self.RANGE/(self.VH-self.VL))
