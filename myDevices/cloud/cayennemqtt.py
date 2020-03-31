@@ -3,6 +3,7 @@ from json import loads, decoder
 from ssl import PROTOCOL_TLSv1_2
 import paho.mqtt.client as mqtt
 from myDevices.utils.logger import debug, error, exception, info, logJson, warn
+from myDevices.utils.config import Config, APP_SETTINGS
 
 # Topics
 DATA_TOPIC = 'data/json'
@@ -108,6 +109,10 @@ class CayenneMQTTClient:
     root_topic = ""
     connected = False
     on_message = None
+
+    config = Config(APP_SETTINGS)
+
+    mqtt_dis_prefix = config.get('Agent', 'MQTT_DIS_PREFIX', "homeassistant")
     
     def begin(self, username, password, clientid, hostname='mqtt.mydevices.com', port=8883):
         """Initializes the client and connects to Cayenne.
@@ -118,7 +123,11 @@ class CayenneMQTTClient:
         hostname is the MQTT broker hostname.
         port is the MQTT broker port.
         """
-        self.root_topic = 'v1/{}/things/{}'.format(username, clientid)
+
+
+
+        # self.root_topic = 'v1/{}/things/{}'.format(username, clientid)
+        self.root_topic = '{}'.format(self.mqtt_dis_prefix)
         self.client = mqtt.Client(client_id=clientid, clean_session=True, userdata=self)
         self.client.on_connect = self.connect_callback
         self.client.on_disconnect = self.disconnect_callback

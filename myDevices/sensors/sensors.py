@@ -22,14 +22,23 @@ from myDevices.utils.logger import debug, error, exception, info, logJson, warn
 from myDevices.utils.threadpool import ThreadPool
 from myDevices.utils.types import M_JSON
 
+from myDevices.devices.manager import DYNAMIC_DEVICES
+
+
+
+
+
 REFRESH_FREQUENCY = 15 #seconds
 REAL_TIME_FREQUENCY = 60/55 #Seconds/messages, this is done to keep messages under the rate limit
+
+
 
 class SensorsClient():
     """Class for interfacing with sensors and actuators"""
 
-    def __init__(self):
+    def __init__(self,client):
         """Initialize the bus and sensor info and start monitoring sensor states"""
+        self.cloudClient = client
         self.sensorMutex = RLock()
         self.realTimeMutex = RLock()
         self.exiting = Event()
@@ -46,6 +55,26 @@ class SensorsClient():
         # self.downloadSpeed.getDownloadSpeed()
         manager.addDeviceInstance("GPIO", "GPIO", "GPIO", self.gpio, [], "system")
         manager.loadJsonDevices("rest")
+
+        info("DYNAMIC_DEVICES DYNAMIC_DEVICES DYNAMIC_DEVICES DYNAMIC_DEVICES DYNAMIC_DEVICES")
+        # info(DYNAMIC_DEVICES)
+        self.config = Config(APP_SETTINGS)
+        self.clientId = self.config.get('Agent', 'ClientID', None)
+        self.mqtt_dis_prefix = self.config.get('Agent', 'MQTT_DIS_PREFIX', "homeassistant")
+
+        for name,device in DYNAMIC_DEVICES.items():
+
+            for type in device['type']  :
+                if type in ['DAC','ADC']:
+                    continue
+                topic,message = self.AddMQTTSensorDevice(name,type,device)
+
+                if self.cloudClient:
+                    info("{} {}".format(topic,message))
+                    self.cloudClient.EnqueuePacket(message,topic)
+                # info(mqttsensor)
+        info("DYNAMIC_DEVICES DYNAMIC_DEVICES DYNAMIC_DEVICES DYNAMIC_DEVICES DYNAMIC_DEVICES")
+
         results = DbManager.Select(self.disabledSensorTable)
         if results:
             for row in results:
@@ -55,6 +84,24 @@ class SensorsClient():
         self.pluginManager.load_plugins()
         self.InitCallbacks()
         self.StartMonitoring()
+
+
+    def AddMQTTSensorDevice(self,name,type, device):
+
+        sensor_topic = "sensor/{}/{}/config".format(self.clientId,name +'_'+ str.lower(type))
+        unit = {"Temperature": "℃", "Humidity":"%", "Pressure":"pa", "Distance":"mm", "MQSensor":"ppm", "Luminosity":"lu", "CO2Sensor":"ppm"}
+        sensor_config = \
+        {
+                "device_class": "temperature",
+                "name": name + '_' + str.lower(type),
+                "state_topic": "{}/sensor/{}/{}/state".format(self.mqtt_dis_prefix, self.clientId, name +'_'+ str.lower(type)),
+                "unit_of_measurement": unit[type],
+                "icon": "mdi:power",
+                "value_template": "{{ value_json.value}}"
+        }
+
+        return  sensor_topic,sensor_config
+
 
     def SetDataChanged(self, onDataChanged=None):
         """Set callback to call when data has changed
@@ -139,7 +186,8 @@ class SensorsClient():
 
     def StartMonitoring(self):
         """Start thread monitoring sensor data"""
-        ThreadPool.Submit(self.Monitor)
+        pass
+        # ThreadPool.Submit(self.Monitor)
 
     def StopMonitoring(self):
         """Stop thread monitoring sensor data"""
@@ -220,6 +268,8 @@ class SensorsClient():
             return
         self.currentSystemState += self.SensorsInfo()
 
+
+
     def MonitorPlugins(self):
         """Check plugin states for changes"""
         if self.exiting.is_set():
@@ -296,10 +346,10 @@ class SensorsClient():
         for device in devices:
             sensor = instance.deviceInstance(device['name'])
             if 'enabled' not in device or device['enabled'] == 1:
-                sensor_types = {'Temperature': {'function': 'getCelsius', 'data_args': {'type': 'temp', 'unit': 'c'}},
-                                'Humidity': {'function': 'getHumidityPercent', 'data_args': {'type': 'rel_hum', 'unit': 'p'}},
-                                'Pressure': {'function': 'getPascal', 'data_args': {'type': 'bp', 'unit': 'pa'}},
-                                'Luminosity': {'function': 'getLux', 'data_args': {'type': 'lum', 'unit': 'lux'}},
+                sensor_types = {'Temperature': {'function': 'getCelsius', 'data_args': {'type': 'temperature', 'unit': 'c'}},
+                                'Humidity': {'function': 'getHumidityPercent', 'data_args': {'type': 'humidity', 'unit': 'p'}},
+                                'Pressure': {'function': 'getPascal', 'data_args': {'type': 'pressure', 'unit': 'pa'}},
+                                'Luminosity': {'function': 'getLux', 'data_args': {'type': 'illuminance', 'unit': 'lux'}},
                                 'Distance': {'function': 'getCentimeter', 'data_args': {'type': 'prox', 'unit': 'cm'}},
                                 'MQSensor': {'function': 'getMQ', 'data_args': {'type': 'mq136','unit': 'ppm'}},
                                 'CO2Sensor': {'function': 'readCO2', 'data_args': {'type': 'co2','unit': 'ppm'}},

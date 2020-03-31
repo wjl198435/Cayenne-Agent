@@ -123,7 +123,7 @@ class BME280Calibration():
 class BME280(Temperature, Pressure,Humidity):
 
 
-    def __init__(self, i2c_addr=I2C_ADDRESS_GND, i2c_dev=None,altitude=0, external=None, humidity=False, temperature=True, pressure=False):
+    def __init__(self, i2c_addr=I2C_ADDRESS_GND, i2c_dev=None,altitude=0, external=None, humidity=False, temperature=False, pressure=False):
 
         self.temp = temperature
         self.hum = humidity

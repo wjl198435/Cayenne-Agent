@@ -11,12 +11,16 @@ from myDevices.devices.digital.gpio import NativeGPIO as GPIO
 from myDevices.devices import instance
 from time import sleep
 from json import loads, dumps
+from myDevices.cloud.client import CloudServerClient
+
+from myDevices.utils.config import Config,APP_SETTINGS
 
 
 class SensorsClientTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.client = sensors.SensorsClient()
+        client = CloudServerClient(host='192.168.8.107', port='1883', cayenneApiHost='192.168.8.107')
+        cls.client = sensors.SensorsClient(client)
 
     @classmethod
     def tearDownClass(cls):
@@ -102,6 +106,10 @@ class SensorsClientTest(unittest.TestCase):
 
     def testSensorInfo(self):
         debug('testSensorInfo')
+
+        self.config = Config(APP_SETTINGS)
+        self.location = self.config.get('Agent', 'Location', "house0_room0_")
+
         actuator_channel = GPIO().pins[10]
         light_switch_channel = GPIO().pins[11]
 
@@ -119,15 +127,18 @@ class SensorsClientTest(unittest.TestCase):
                    # 'MCP3004' : {'description': 'MCP3004', 'device': 'MCP3004', 'args': {'chip': '0'}, 'name': 'test_MCP3004'},
 
 
-                    'PCF8591' : {'description': 'PCF8591','index':7, 'device': 'PCF8591','args': {},  'name': 'adc'},
-                    'Distance' : {'description': 'Distance', 'index':0 ,'device': 'VL6180X','args': {},  'name': 'test_vl6180x_distance'},
-                    'Object_Temperature' : {'description': 'Temperature', 'index':1, 'device': 'MLX90614','args': {'obj_temp': True},  'name': 'test_MLX90614_obj'},
-                    'Amb_Temperature' : {'description': 'Temperature', 'index':2,'device': 'MLX90614','args': {'obj_temp': False},  'name': 'test_MLX90614_amb'},
-                    'Luminosity' : {'description': 'Luminosity','index':3, 'device': 'GY30','args': {},  'name': 'test_GY30'},
+                    'PCF8591' : {'description': 'PCF8591','index':0, 'device': 'PCF8591','args': {},  'name': 'adc'},
+                    'distance' : {'description': 'distance', 'index':1 ,'device': 'VL6180X','args': {},  'name': self.location+'distance'},
+                    'object_temperature' : {'description': 'ir_body_temperature', 'index':2, 'device': 'MLX90614','args': {'obj_temp': True},  'name': self.location+'ir_body_temp'},
+                    'amb_temperature' : {'description': 'ir_climate_temperature', 'index':3,'device': 'MLX90614','args': {'obj_temp': False},  'name': self.location+'ir_climate_temp'},
+                    'luminosity' : {'description': 'luminosity','index':4, 'device': 'GY30','args': {},  'name': self.location+'luminosity'},
 
-                    'MHZ19B' : {'description': 'CO2', 'index':4,'device': 'CO2Sensor','args': {'adc': 'adc', 'channel': 2},  'name': 'test_CO2Sensor'},
-                    'MQSensor' : {'description': 'Analog MQ136 Sensor',  'index':5,'device': 'MQSensor', 'args': {'adc': 'adc', 'channel': 1}, 'name': 'test_MQ136'},
-                    'BME280' : {'description': 'bme','index':6, 'device': 'BME280','args': {'pressure': True,'humidity': True},  'name': 'test_BME280'},
+                    'co2' : {'description': 'co2', 'index':5,'device': 'CO2Sensor','args': {'adc': 'adc', 'channel': 3},  'name': self.location+'co2'},
+                    'h2s' : {'description': 'h2s',  'index':6,'device': 'MQSensor', 'args': {'adc': 'adc', 'channel': 2}, 'name': self.location+'h2s'},
+                    'nh3' : {'description': 'nh3',  'index':6,'device': 'MQSensor', 'args': {'adc': 'adc', 'channel': 4}, 'name': self.location+'nh3'},
+                    'climate' : {'description': 'climate','index':7, 'device': 'BME280','args': {'temperature':True,'pressure': True,'humidity': True},  'name': self.location+'climate'},
+                    # 'climate_pressure' : {'description': 'climate_pressure','index':8, 'device': 'BME280','args': {'pressure': True},  'name': self.location+'climate_pressure'},
+                    # 'climate_humidity' : {'description': 'climate_humidity','index':9, 'device': 'BME280','args': {'humidity': True},  'name': self.location+'climate_humidity'}
 
                   }
         for sensor in sensors.values():

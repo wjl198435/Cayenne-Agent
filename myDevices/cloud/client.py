@@ -170,8 +170,13 @@ class CloudServerClient:
         self.username = self.config.get('Agent', 'Username', None)
         self.password = self.config.get('Agent', 'Password', None)
         self.clientId = self.config.get('Agent', 'ClientID', None)
+        self.location = self.config.get('Agent', 'Location', "house0@room0@")
+        self.mqtt_dis_prefix = self.config.get('Agent', 'MQTT_DIS_PREFIX', "homeassistant")
         self.connected = False
         self.exiting = Event()
+
+        self.sensorsClient = None
+
 
     def __del__(self):
         """Delete the client"""
@@ -194,8 +199,6 @@ class CloudServerClient:
                 error('Error starting agent')
                 return
             self.schedulerEngine = SchedulerEngine(self, 'client_scheduler')
-            self.sensorsClient = sensors.SensorsClient()
-
 
 
             self.readQueue = Queue()
@@ -204,13 +207,16 @@ class CloudServerClient:
             self.oSInfo = OSInfo()
             self.count = 10000
             self.buff = bytearray(self.count)
-            self.sensorsClient.SetDataChanged(self.OnDataChanged)
+
             self.writerThread = WriterThread('writer', self)
             self.writerThread.start()
             self.processorThread = ProcessorThread('processor', self)
             self.processorThread.start()
             self.systemInfo = []
             TimerThread(self.SendSystemInfo, 300)
+
+            self.sensorsClient = sensors.SensorsClient(self)
+            self.sensorsClient.SetDataChanged(self.OnDataChanged)
             # TimerThread(self.SendSystemState, 30, 5)
             self.updater = Updater(self.config)
             self.updater.start()
