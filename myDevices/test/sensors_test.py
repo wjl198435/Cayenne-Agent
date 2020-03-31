@@ -19,8 +19,8 @@ from myDevices.utils.config import Config,APP_SETTINGS
 class SensorsClientTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        client = CloudServerClient(host='192.168.8.107', port='1883', cayenneApiHost='192.168.8.107')
-        cls.client = sensors.SensorsClient(client)
+        sevclient = CloudServerClient(host='192.168.8.107', port='1883', cayenneApiHost='192.168.8.107')
+        cls.client = sensors.SensorsClient(sevclient)
 
     @classmethod
     def tearDownClass(cls):
@@ -122,24 +122,15 @@ class SensorsClientTest(unittest.TestCase):
             SensorsClientTest.client.AddSensor(sensor['name'],sensor['description'], sensor['device'], sensor['args'])
 
         sensors = {
-                   # 'actuator' : {'description': 'Digital Output', 'device': 'DigitalActuator', 'args': {'gpio': 'GPIO', 'invert': False, 'channel': actuator_channel}, 'name': 'test_actuator'},
-                   # 'light_switch' : {'description': 'Light Switch', 'device': 'LightSwitch', 'args': {'gpio': 'GPIO', 'invert': True, 'channel': light_switch_channel}, 'name': 'test_light_switch'},
-                   # 'MCP3004' : {'description': 'MCP3004', 'device': 'MCP3004', 'args': {'chip': '0'}, 'name': 'test_MCP3004'},
-
-
                     'PCF8591' : {'description': 'PCF8591','index':0, 'device': 'PCF8591','args': {},  'name': 'adc'},
                     'distance' : {'description': 'distance', 'index':1 ,'device': 'VL6180X','args': {},  'name': self.location+'distance'},
-                    'object_temperature' : {'description': 'ir_body_temperature', 'index':2, 'device': 'MLX90614','args': {'obj_temp': True},  'name': self.location+'ir_body_temp'},
-                    'amb_temperature' : {'description': 'ir_climate_temperature', 'index':3,'device': 'MLX90614','args': {'obj_temp': False},  'name': self.location+'ir_climate_temp'},
+                    'object_temperature' : {'description': 'ir_body_temperature', 'index':2, 'device': 'MLX90614','args': {'obj_temp': True},  'name': self.location+'ir_body'},
+                    'amb_temperature' : {'description': 'ir_climate_temperature', 'index':3,'device': 'MLX90614','args': {'obj_temp': False},  'name': self.location+'ir_climate'},
                     'luminosity' : {'description': 'luminosity','index':4, 'device': 'GY30','args': {},  'name': self.location+'luminosity'},
-
-                    'co2' : {'description': 'co2', 'index':5,'device': 'CO2Sensor','args': {'adc': 'adc', 'channel': 3},  'name': self.location+'co2'},
-                    'h2s' : {'description': 'h2s',  'index':6,'device': 'MQSensor', 'args': {'adc': 'adc', 'channel': 2}, 'name': self.location+'h2s'},
-                    'nh3' : {'description': 'nh3',  'index':6,'device': 'MQSensor', 'args': {'adc': 'adc', 'channel': 4}, 'name': self.location+'nh3'},
+                    'co2' : {'description': 'co2', 'index':5,'device': 'CO2Sensor','args': {'adc': 'adc', 'channel': 3},  'name': self.location+'gas'},
+                    'h2s' : {'description': 'h2s',  'index':6,'device': 'MQSensor', 'args': {'adc': 'adc', 'channel': 2}, 'name': self.location+'gas'},
+                    'nh3' : {'description': 'nh3',  'index':6,'device': 'MQSensor', 'args': {'adc': 'adc', 'channel': 4}, 'name': self.location+'gas'},
                     'climate' : {'description': 'climate','index':7, 'device': 'BME280','args': {'temperature':True,'pressure': True,'humidity': True},  'name': self.location+'climate'},
-                    # 'climate_pressure' : {'description': 'climate_pressure','index':8, 'device': 'BME280','args': {'pressure': True},  'name': self.location+'climate_pressure'},
-                    # 'climate_humidity' : {'description': 'climate_humidity','index':9, 'device': 'BME280','args': {'humidity': True},  'name': self.location+'climate_humidity'}
-
                   }
         for sensor in sensors.values():
             # info("sensors:{}".format(sensor))

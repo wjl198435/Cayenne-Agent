@@ -21,16 +21,29 @@ from myDevices.utils.daemon import Daemon
 from myDevices.utils.logger import debug, error, exception, info, logJson, warn
 from myDevices.utils.threadpool import ThreadPool
 from myDevices.utils.types import M_JSON
+# from myDevices.system.hardware import Hardware
 
 from myDevices.devices.manager import DYNAMIC_DEVICES
-
-
-
-
 
 REFRESH_FREQUENCY = 15 #seconds
 REAL_TIME_FREQUENCY = 60/55 #Seconds/messages, this is done to keep messages under the rate limit
 
+
+
+sensors = {
+    'PCF8591' : {'description': 'PCF8591','index':0, 'device': 'PCF8591','args': {},  'name': 'adc'},
+    'distance' : {'description': 'distance', 'index':1 ,'device': 'VL6180X','args': {},  'name': 'distance'},
+    'object_temperature' : {'description': 'ir_temperature', 'index':2, 'device': 'MLX90614','args': {'obj_temp': True},  'name': 'ir_body'},
+    'amb_temperature' : {'description': 'climate_temperature', 'index':3,'device': 'MLX90614','args': {'obj_temp': False},  'name': 'ir_climate'},
+    'luminosity' : {'description': 'luminosity','index':4, 'device': 'GY30','args': {},  'name': 'luminosity'},
+    'co2' : {'description': 'co2', 'index':5,'device': 'CO2Sensor','args': {'adc': 'adc', 'channel': 3},  'name': 'co2'},
+    'h2s' : {'description': 'h2s',  'index':6,'device': 'MQSensor', 'args': {'adc': 'adc', 'channel': 2}, 'name': 'h2s'},
+    'nh3' : {'description': 'nh3',  'index':6,'device': 'MQSensor', 'args': {'adc': 'adc', 'channel': 4}, 'name': 'nh3'},
+    # 'bme280' : {'description': 'climate','index':7, 'device': 'BME280','args': {'temperature':True,'pressure': True,'humidity': True},  'name': 'temperature'},
+    'temperature' : {'description': 'temperature','index':7, 'device': 'BME280','args': {'temperature':True},  'name': 'temperature'},
+    'pressure' : {'description': 'pressure','index':7, 'device': 'BME280','args': {'pressure':True},  'name': 'pressure'},
+    'humidity' : {'description': 'humidity','index':7, 'device': 'BME280','args': {'humidity':True},  'name': 'humidity'}
+}
 
 
 class SensorsClient():
@@ -54,13 +67,23 @@ class SensorsClient():
         # self.downloadSpeed = DownloadSpeed(Config(APP_SETTINGS))
         # self.downloadSpeed.getDownloadSpeed()
         manager.addDeviceInstance("GPIO", "GPIO", "GPIO", self.gpio, [], "system")
+
         manager.loadJsonDevices("rest")
 
-        info("DYNAMIC_DEVICES DYNAMIC_DEVICES DYNAMIC_DEVICES DYNAMIC_DEVICES DYNAMIC_DEVICES")
+
+        if not DYNAMIC_DEVICES  :
+            warn("loadJsonDevices is None")
+            for sensor in sensors.values():
+                info('--------{} {} {}'.format(sensor['name'], sensor['description'], sensor['device']))
+                self.AddSensor(sensor['name'],sensor['description'], sensor['device'], sensor['args'])
+
+        #
         # info(DYNAMIC_DEVICES)
         self.config = Config(APP_SETTINGS)
         self.clientId = self.config.get('Agent', 'ClientID', None)
         self.mqtt_dis_prefix = self.config.get('Agent', 'MQTT_DIS_PREFIX', "homeassistant")
+        self.serial = self.cloudClient.hardware.Serial
+
 
         for name,device in DYNAMIC_DEVICES.items():
 
@@ -70,10 +93,10 @@ class SensorsClient():
                 topic,message = self.AddMQTTSensorDevice(name,type,device)
 
                 if self.cloudClient:
-                    info("{} {}".format(topic,message))
+                    # info("{} {}".format(topic,message))
                     self.cloudClient.EnqueuePacket(message,topic)
                 # info(mqttsensor)
-        info("DYNAMIC_DEVICES DYNAMIC_DEVICES DYNAMIC_DEVICES DYNAMIC_DEVICES DYNAMIC_DEVICES")
+
 
         results = DbManager.Select(self.disabledSensorTable)
         if results:
@@ -88,13 +111,13 @@ class SensorsClient():
 
     def AddMQTTSensorDevice(self,name,type, device):
 
-        sensor_topic = "sensor/{}/{}/config".format(self.clientId,name +'_'+ str.lower(type))
+        sensor_topic = "sensor/{}/{}/config".format(self.serial,name )
         unit = {"Temperature": "℃", "Humidity":"%", "Pressure":"pa", "Distance":"mm", "MQSensor":"ppm", "Luminosity":"lu", "CO2Sensor":"ppm"}
         sensor_config = \
         {
                 "device_class": "temperature",
-                "name": name + '_' + str.lower(type),
-                "state_topic": "{}/sensor/{}/{}/state".format(self.mqtt_dis_prefix, self.clientId, name +'_'+ str.lower(type)),
+                "name": name ,
+                "state_topic": "{}/sensor/{}/{}/state".format(self.mqtt_dis_prefix, self.serial, name ),
                 "unit_of_measurement": unit[type],
                 "icon": "mdi:power",
                 "value_template": "{{ value_json.value}}"
@@ -186,8 +209,8 @@ class SensorsClient():
 
     def StartMonitoring(self):
         """Start thread monitoring sensor data"""
-        pass
-        # ThreadPool.Submit(self.Monitor)
+        # pass
+        ThreadPool.Submit(self.Monitor)
 
     def StopMonitoring(self):
         """Stop thread monitoring sensor data"""
@@ -267,6 +290,7 @@ class SensorsClient():
         if self.exiting.is_set():
             return
         self.currentSystemState += self.SensorsInfo()
+
 
 
 
