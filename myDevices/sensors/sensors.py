@@ -74,7 +74,7 @@ class SensorsClient():
         if not DYNAMIC_DEVICES  :
             warn("loadJsonDevices is None")
             for sensor in sensors.values():
-                info('--------{} {} {}'.format(sensor['name'], sensor['description'], sensor['device']))
+                # info('--------{} {} {}'.format(sensor['name'], sensor['description'], sensor['device']))
                 self.AddSensor(sensor['name'],sensor['description'], sensor['device'], sensor['args'])
 
         #
@@ -113,13 +113,14 @@ class SensorsClient():
 
         sensor_topic = "sensor/{}/{}/config".format(self.serial,name )
         unit = {"Temperature": "℃", "Humidity":"%", "Pressure":"pa", "Distance":"mm", "MQSensor":"ppm", "Luminosity":"lu", "CO2Sensor":"ppm"}
+        icon = {"Temperature": "mdi:coolant-temperature", "Humidity":"mdi:water", "Pressure":"mdi:file-powerpoint-box", "Distance":"mdi:ruler", "MQSensor":"mdi:gas-cylinder", "Luminosity":"mdi:white-balance-sunny", "CO2Sensor":"mdi:periodic-table-co2"}
         sensor_config = \
         {
                 "device_class": "temperature",
                 "name": "{}{}".format(self.cloudClient.location,name) ,
-                "state_topic": "{}/sensor/{}/dev:{}/state".format(self.mqtt_dis_prefix, self.serial, name ),
+                "state_topic": "{}/sensor/{}/dev:{}/state".format(self.mqtt_dis_prefix, self.serial, name),
                 "unit_of_measurement": unit[type],
-                "icon": "mdi:power",
+                "icon": icon[type],
                 "value_template": "{{ value_json.value}}"
         }
 
