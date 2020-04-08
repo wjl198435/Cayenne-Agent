@@ -102,6 +102,7 @@ class WriterThread(Thread):
         """Send messages to the server until the thread is stopped"""
         debug('WriterThread run')
         while self.Continue:
+
             try:
                 if self.cloudClient.exiting.wait(GENERAL_SLEEP_THREAD):
                     return
@@ -110,14 +111,31 @@ class WriterThread(Thread):
                     continue
                 got_packet = False
                 topic, message = self.cloudClient.DequeuePacket()
+                info("topic={}, message={}".format(topic, message))
+                # startswith(cayennemqtt.DEV_SENSOR)
                 if topic or message:
                     got_packet = True
                 try:
                     if message or topic == cayennemqtt.JOBS_TOPIC:
-                        # debug('WriterThread, topic: {} {}'.format(topic, message))
+                        if topic == cayennemqtt.DATA_TOPIC:
+                            for sensor in message:
+                                if sensor['channel'].startswith(cayennemqtt.DEV_SENSOR):
+                                    # "state_topic": "{}/sensor/{}/dev:{}/state".format(self.mqtt_dis_prefix, self.serial, name ),
+                                    state_topic = "sensor/{}/{}/state".format( self.cloudClient.hardware.Serial,  sensor['channel'] )
+                                    sensor_message = {"domain":'sensor',"device_class":sensor['type'],"location":"",'value':sensor['value']}
+                                    sensor_message = dumps(sensor_message)
+                                    info("state_topic={} ,sensor_message={}".format(state_topic,sensor_message))
+                                    self.cloudClient.mqttClient.publish_packet(state_topic, sensor_message)
+                                    continue
+                                elif sensor['channel'].startswith(cayennemqtt.SYS_GPIO):
+                                    info("sys.gpio={} ".format(sensor))
+                                elif sensor['channel'].startswith("sys"):
+                                    info("sys={} ".format(sensor))
                         if not isinstance(message, str):
                             message = dumps(message)
+
                         self.cloudClient.mqttClient.publish_packet(topic, message)
+
                         message = None
                 except:
                     exception("WriterThread publish packet error")    
@@ -254,6 +272,7 @@ class CloudServerClient:
             if len(data) > 15:
                 items = [{item['channel']:item['value']} for item in data if not item['channel'].startswith(cayennemqtt.SYS_GPIO)]
                 info('Send changed data: {} + {}'.format(items, cayennemqtt.SYS_GPIO))
+
             else:
                 info('Send changed data: {}'.format([{item['channel']:item['value']} for item in data]))
             # items = {}
@@ -271,6 +290,8 @@ class CloudServerClient:
         except:
             info('Send changed data')
             pass
+
+
         self.EnqueuePacket(data)
 
     def SendSystemInfo(self):

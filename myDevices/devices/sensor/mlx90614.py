@@ -99,12 +99,12 @@ class MLX90614(Temperature):
 
     def get_amb_temp(self):
         data = self.read_reg(self.MLX90614_TA)
-        info("data get_amb_temp ={}".format(data))
+        # info("data get_amb_temp ={}".format(data))
         return round(self.data_to_temp(data),2)
 
     def get_obj_temp(self):
         data = self.read_reg(self.MLX90614_TOBJ1)
-        info("data get_obj_temp ={}".format(data))
+        # info("data get_obj_temp ={}".format(data))
         return round(self.data_to_temp(data),2)
     def read(self):
         measure_time = datetime.datetime.now().timestamp()

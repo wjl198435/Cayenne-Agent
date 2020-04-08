@@ -119,13 +119,13 @@ class MQSensor():
 
         try:
             read = self.MQRead(self.mq_channel)
-            info("read mq_channel:{}".format(read))
+            # info("read mq_channel:{}".format(read))
             measure_time = datetime.datetime.now().timestamp()
             h2s = self.MQGetGasPercentage(read / self.Ro, self.GAS_H2S)
             # co = self.MQGetGasPercentage(read/self.Ro, self.GAS_CO)
             # ch4 = self.MQGetGasPercentage(read / self.Ro, self.GAS_CH4)
             # return MQ136Result(MQ136Result.ERR_NO_ERROR, h2s, co, ch4, measure_time)
-            info(" h2s ={}".format(h2s))
+            # info(" h2s ={}".format(h2s))
             return h2s
         except Exception as e:
             error(e)

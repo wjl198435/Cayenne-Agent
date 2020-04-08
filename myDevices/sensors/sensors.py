@@ -93,7 +93,7 @@ class SensorsClient():
                 topic,message = self.AddMQTTSensorDevice(name,type,device)
 
                 if self.cloudClient:
-                    # info("{} {}".format(topic,message))
+                    info("{} {}".format(topic,message))
                     self.cloudClient.EnqueuePacket(message,topic)
                 # info(mqttsensor)
 
@@ -116,8 +116,8 @@ class SensorsClient():
         sensor_config = \
         {
                 "device_class": "temperature",
-                "name": name ,
-                "state_topic": "{}/sensor/{}/{}/state".format(self.mqtt_dis_prefix, self.serial, name ),
+                "name": "{}{}".format(self.cloudClient.location,name) ,
+                "state_topic": "{}/sensor/{}/dev:{}/state".format(self.mqtt_dis_prefix, self.serial, name ),
                 "unit_of_measurement": unit[type],
                 "icon": "mdi:power",
                 "value_template": "{{ value_json.value}}"
@@ -393,20 +393,20 @@ class SensorsClient():
 
                     except:
                         display_name = None
-                    info("display_name:{}".format(display_name))
+                    # info("display_name:{}".format(display_name))
                     if device_type in sensor_types:
                         try:
                             sensor_type = sensor_types[device_type]
-                            info("sensor_type:{}".format(sensor_type))
+                            # info("sensor_type:{}".format(sensor_type))
                             func = getattr(sensor, sensor_type['function'])
-                            info("func:{}".format(func))
+                            # info("func:{}".format(func))
 
                             if len(device['type']) > 1:
                                 channel = '{}:{}'.format(device['name'], device_type.lower())
                             else:
                                 channel = device['name']
                             value = self.CallDeviceFunction(func)
-                            info("value={}".format(value))
+                            # info("value={}".format(value))
                             cayennemqtt.DataChannel.add(sensors_info, cayennemqtt.DEV_SENSOR, channel, value=value, name=display_name, **sensor_type['data_args'])
                             if 'DigitalActuator' == device_type and value in (0, 1):
                                 manager.updateDeviceState(device['name'], value)
@@ -421,7 +421,7 @@ class SensorsClient():
                     #             cayennemqtt.DataChannel.add(sensors_info, cayennemqtt.DEV_SENSOR, device['name'] + ':' + str(pin), cayennemqtt.VALUE, value, name=display_name)
                     #     except:
                     #         exception('Failed to get extension data: {} {}'.format(device_type, device['name']))
-        info('Sensors info: {}'.format(sensors_info))
+        # info('Sensors info: {}'.format(sensors_info))
         return sensors_info
 
     def AddSensor(self, name, description, device, args):
