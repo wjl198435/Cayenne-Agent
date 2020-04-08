@@ -34,15 +34,15 @@ sensors = {
     'PCF8591' : {'description': 'PCF8591','index':0, 'device': 'PCF8591','args': {},  'name': 'adc'},
     'distance' : {'description': 'distance', 'index':1 ,'device': 'VL6180X','args': {},  'name': 'distance'},
     'object_temperature' : {'description': 'ir_temperature', 'index':2, 'device': 'MLX90614','args': {'obj_temp': True},  'name': 'ir_body'},
-    'amb_temperature' : {'description': 'climate_temperature', 'index':3,'device': 'MLX90614','args': {'obj_temp': False},  'name': 'ir_climate'},
-    'luminosity' : {'description': 'luminosity','index':4, 'device': 'GY30','args': {},  'name': 'luminosity'},
+    'amb_temperature' : {'description': 'climate_temperature', 'index':3,'device': 'MLX90614','args': {'obj_temp': False},  'name': 'ir_reference'},
+    'illuminance' : {'description': 'illuminance','index':4, 'device': 'GY30','args': {},  'name': 'illuminance'},
     'co2' : {'description': 'co2', 'index':5,'device': 'CO2Sensor','args': {'adc': 'adc', 'channel': 3},  'name': 'co2'},
     'h2s' : {'description': 'h2s',  'index':6,'device': 'MQSensor', 'args': {'adc': 'adc', 'channel': 2}, 'name': 'h2s'},
     'nh3' : {'description': 'nh3',  'index':6,'device': 'MQSensor', 'args': {'adc': 'adc', 'channel': 4}, 'name': 'nh3'},
     # 'bme280' : {'description': 'climate','index':7, 'device': 'BME280','args': {'temperature':True,'pressure': True,'humidity': True},  'name': 'temperature'},
-    'temperature' : {'description': 'temperature','index':7, 'device': 'BME280','args': {'temperature':True},  'name': 'temperature'},
-    'pressure' : {'description': 'pressure','index':7, 'device': 'BME280','args': {'pressure':True},  'name': 'pressure'},
-    'humidity' : {'description': 'humidity','index':7, 'device': 'BME280','args': {'humidity':True},  'name': 'humidity'}
+    'temperature' : {'description': 'temperature','index':7, 'device': 'BME280','args': {'temperature':True},  'name': 'climate_temperature'},
+    'pressure' : {'description': 'pressure','index':7, 'device': 'BME280','args': {'pressure':True},  'name': 'climate_pressure'},
+    'humidity' : {'description': 'humidity','index':7, 'device': 'BME280','args': {'humidity':True},  'name': 'climate_humidity'}
 }
 
 
